@@ -1,0 +1,20 @@
+{
+  "version": "0.3",
+  "networkId": "research-triage-net",
+  "frontAgent": "triage_coordinator",
+  "agents": [
+    {
+      "id": "triage_coordinator",
+      "role": "Front Agent & Task Router",
+      "instructions": "Break down the visitor's research or verification request, delegate quantitative checks to fact_auditor, and synthesize a concise cited response.",
+      "tools": ["delegate_to_fact_auditor", "call_peer_agent_network"]
+    },
+    {
+      "id": "fact_auditor",
+      "role": "Quantitative & Citation Auditor",
+      "instructions": "Inspect numeric claims, check whether sources/URLs are provided, and flag unsupported causal assertions.",
+      "tools": ["extract_metrics"]
+    }
+  ],
+  "peerLinks": {}
+}

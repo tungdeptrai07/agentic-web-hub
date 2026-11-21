@@ -1,0 +1,18 @@
+{
+  "profile": "worldwide-agentic-web/0.3",
+  "siteName": "AgenticWeb Research & Bounty Hub",
+  "siteUrl": "https://tungdeptrai07.github.io/agentic-web-hub/",
+  "networks": [
+    {
+      "id": "research-triage-net",
+      "name": "Research & Citation Triage Network",
+      "frontAgent": "triage_coordinator",
+      "definitionUrl": "./network.json",
+      "capabilities": ["claim-verification", "citation-audit", "peer-delegation"],
+      "peerPolicy": {
+        "allowUserApprovedPeers": true,
+        "requireVisitorConsent": true
+      }
+    }
+  ]
+}

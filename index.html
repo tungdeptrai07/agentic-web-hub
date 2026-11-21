@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgenticWeb Hub — Worldwide Agentic Web (MVP 0.3)</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0b0f19; color: #e5e7eb; padding: 24px; }
+    .wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 18px; }
+    .card { background: #131a29; border: 1px solid #243049; border-radius: 12px; padding: 18px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; background: #0b0f19; color: #e5e7eb; border: 1px solid #243049; border-radius: 8px; padding: 10px; margin-top: 6px; }
+    button { background: #3b82f6; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    pre { white-space: pre-wrap; background: #0b0f19; padding: 12px; border-radius: 8px; border: 1px solid #243049; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>AgenticWeb Research &amp; Bounty Hub</h1>
+      <p>Conforms to <strong>Worldwide Agentic Web MVP 0.3</strong>: publishes <a href="./agent-manifest.json" style="color:#60a5fa">agent-manifest.json</a> &amp; <a href="./network.json" style="color:#60a5fa">network.json</a> and runs 100% client-side in your browser.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Visitor LLM &amp; Key Configuration (Bring Your Own Key)</h2>
+      <div class="grid2">
+        <div>
+          <label>Provider</label>
+          <select id="provider">
+            <option value="gemini">Google Gemini (BYOK)</option>
+            <option value="openai">OpenAI (BYOK)</option>
+          </select>
+        </div>
+        <div>
+          <label>Model (optional)</label>
+          <input id="model" type="text" placeholder="gemini-2.5-flash or gpt-4o-mini" />
+        </div>
+      </div>
+      <label style="display:block;margin-top:10px;">API Key (kept strictly in browser memory)</label>
+      <input id="api-key" type="password" placeholder="Optional — leave blank for local structural trace" />
+    </div>
+
+    <div class="card">
+      <h2>2. Interact with Agent Network (or Call Peer Agentic Site)</h2>
+      <label>Optional Peer Agentic Site URL (CORS-enabled)</label>
+      <input id="peer-url" type="text" placeholder="https://example.org/agent-manifest.json" />
+      <label style="display:block;margin-top:10px;">Prompt</label>
+      <textarea id="prompt" rows="4" placeholder="Ask the Research & Citation Triage Network to audit a claim or coordinate with a peer site..."></textarea>
+      <button id="run-btn">Run Agent Network in Browser</button>
+      <pre id="trace-out">Loading agent-manifest.json...</pre>
+      <pre id="resp-out" style="display:none;"></pre>
+    </div>
+  </div>
+  <script type="module">
+    import { loadAgentSite, runInBrowserNetwork } from "./runtime.mjs";
+    const traceOut = document.getElementById("trace-out");
+    const respOut = document.getElementById("resp-out");
+    let siteData = null;
+
+    loadAgentSite(".").then((data) => {
+      siteData = data;
+      traceOut.textContent = `Loaded manifest: ${data.manifest.siteName}\nFront Agent: ${data.network.frontAgent}\nAgents: ${data.network.agents.map((a) => a.id).join(", ")}`;
+    }).catch((err) => {
+      traceOut.textContent = `Manifest load error: ${err.message}`;
+    });
+
+    document.getElementById("run-btn").addEventListener("click", async () => {
+      if (!siteData) return;
+      const prompt = document.getElementById("prompt").value.trim() || "Audit our Q3 benchmark claim.";
+      try {
+        const res = await runInBrowserNetwork({
+          network: siteData.network,
+          prompt,
+          provider: document.getElementById("provider").value,
+          apiKey: document.getElementById("api-key").value.trim(),
+          model: document.getElementById("model").value.trim(),
+          peerUrl: document.getElementById("peer-url").value.trim(),
+        });
+        traceOut.textContent = res.trace.join("\n");
+        respOut.style.display = "block";
+        respOut.textContent = res.output;
+      } catch (err) {
+        traceOut.textContent = `Execution error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
